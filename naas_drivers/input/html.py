@@ -10,27 +10,25 @@ import os
 #  https://litmus.com/community/templates/31-accessible-product-announcement-email
 # https://github.com/rodriguezcommaj/accessible-emails
 base_style = """
-/* CLIENT-SPECIFIC STYLES */
 body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
 table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
 img { -ms-interpolation-mode: bicubic; }
 
-/* RESET STYLES */
 img { border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
-table { border-collapse: collapse !important; text-align: left !important; }
-body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; }
+table { border-collapse: collapse!important; text-align: left!important; }
+body { height: 100%!important; margin: 0!important; padding: 0!important; width: 100%!important; }
 
-/* iOS BLUE LINKS */
+.ExternalClass {width: 100%;}
+
 a[x-apple-data-detectors] {
-    color: inherit !important;
-    text-decoration: none !important;
-    font-size: inherit !important;
-    font-family: inherit !important;
-    font-weight: inherit !important;
-    line-height: inherit !important;
+    color: inherit!important;
+    text-decoration: none!important;
+    font-size: inherit!important;
+    font-family: inherit!important;
+    font-weight: inherit!important;
+    line-height: inherit!important;
 }
 
-/* GMAIL BLUE LINKS */
 u + #body a {
     color: inherit;
     text-decoration: none;
@@ -40,7 +38,6 @@ u + #body a {
     line-height: inherit;
 }
 
-/* SAMSUNG MAIL BLUE LINKS */
 #MessageViewBody a {
     color: inherit;
     text-decoration: none;
@@ -50,16 +47,16 @@ u + #body a {
     line-height: inherit;
 }
 
-a { color: #B200FD; font-weight: 600; text-decoration: underline; }
-a:hover { color: #000000 !important; text-decoration: none !important; background-color: #5c1958 !important; }
-a.button:hover { color: #ffffff !important; background-color: #5c1958 !important; }
+a { color: LightGreen; font-weight: 600; text-decoration: underline; }
+a:hover { color: #000000!important; text-decoration: none!important; background-color: LimeGreen!important; }
+a.button:hover { color: #ffffff!important; background-color: LimeGreen!important; }
 
 td, th {
     padding: 10px;
 }
 
 table * {
-    margin: 18px 0 !important;
+    margin: 18px 0!important;
 }
 
 .table_border {
@@ -67,10 +64,12 @@ table * {
   border-radius: 1em;
   overflow: hidden;
 }
-.table_border tr:hover {
-  background-color: AliceBlue !important;
+.table_border tr:hover,
+* [lang~="x-divbox"]:hover{
+  background-color: LightGreen!important;
   color: black;
 }
+
 .table_border tr:first-child td:first-of-type {
   border-top-left-radius: 10px;
 }
@@ -84,11 +83,11 @@ table * {
 .table_border tr:last-of-type td:last-of-type {
   border-bottom-right-radius: 10px;
 }
-.table_border tr:nth-child(even) { background-color: ghostwhite}
+.tr_even { background-color: HoneyDew}
 
 @media screen and (min-width:600px) {
-    h1 { font-size: 48px !important; line-height: 48px !important; }
-    .intro { font-size: 24px !important; line-height: 36px !important; }
+    h1 { font-size: 48px!important; line-height: 48px!important; }
+    .intro { font-size: 24px!important; line-height: 36px!important; }
 }
 .basic_font {
     font-family: 'Avenir Next', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';  # noqa: E501
@@ -239,7 +238,9 @@ class Html(InDriver):
             error_text = f"Table should be array, not {data.__name__}"
             self.print_error(error_text)
             return None
-        for row in table_arr:
+        for i in range(len(table_arr)):
+            row = table_arr[i]
+            # for row in table_arr:
             res = []
             if isinstance(row, list):
                 for i in range(len(row)):
@@ -265,7 +266,13 @@ class Html(InDriver):
                         )
             else:
                 res.append(tags.Td(tags.Text(row) if isinstance(row, str) else row))
-            elems.append(tags.Tr(res))
+            elems.append(
+                tags.Tr(
+                    res,
+                    attributes.Lang("x-divbox"),
+                    attributes.Class("tr_even") if border and (i % 2) == 1 else None,
+                )
+            )
         tab = tags.Table(
             attributes.InlineStyle(width="100%"),
             attributes.Class("table_border") if border else None,
@@ -468,7 +475,7 @@ class Html(InDriver):
             tags.Head(
                 tags.Meta(
                     attributes.HttpEquiv("Content-Type"),
-                    attributes.Content("text/html; charset=utf-8"),
+                    attributes.Content("text/html charset=utf-8"),
                 ),
                 tags.Meta(
                     attributes.HttpEquiv("Content-Type"),
@@ -482,11 +489,11 @@ class Html(InDriver):
                     attributes.HttpEquiv("X-UA-Compatible"),
                     attributes.Content("IE=edge"),
                 ),
-                tags.Style(tags.Text(base_style)),
                 tags.Title(tags.Text(title)),
             ),
             tags.Body(
-                attributes.InlineStyle(margin="0 !important", padding="0 !important"),
+                attributes.InlineStyle(margin="0!important", padding="0!important"),
+                tags.Style(tags.Text(base_style)),
                 tags.Div(
                     attributes.InlineStyle(
                         display="none", max_height="0", overflow="hidden"
